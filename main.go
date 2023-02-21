@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"sort"
 
-	"github.com/gosuri/uitable"
+	"github.com/jedib0t/go-pretty/v6/table"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -28,7 +29,7 @@ func main() {
 	printWelcome()
 	dcaData, err := getPriceData(cur)
 	if err != nil {
-		log.Fatal("%v", err)
+		log.Fatal("+%v", err)
 	}
 
 	dcaWeekS := make([]stat, len(dcaData.week))
@@ -40,13 +41,14 @@ func main() {
 		return dcaWeekS[i].score > dcaWeekS[j].score
 	})
 
-	table := uitable.New()
-	table.AddRow("day", "price", "(%)", "min stat", "score")
-	table.AddRow("===", "=====", "===", "========", "=====")
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"day", "price", "min stat", "score"})
 	for _, v := range dcaWeekS {
-		p := (dcaWeekS[3].avg - v.avg) / dcaWeekS[3].avg
-		table.AddRow(dow[v.date], fmt.Sprintf("%0.2f %s", v.avg, cur), fmt.Sprintf("%0.3f", p*100), fmt.Sprintf("%d/%d/(%d+%d)", interval, v.min+v.min2, v.min, v.min2), fmt.Sprintf("%0.3f", v.score))
+		t.AppendRow(table.Row{
+			dow[v.date], fmt.Sprintf("%0.0f %s", v.avg, cur), fmt.Sprintf("%d/%d/(%d+%d)", interval, v.min+v.min2, v.min, v.min2), fmt.Sprintf("%0.3f", v.score),
+		})
 	}
-	fmt.Println(table)
-
+	t.SetStyle(table.StyleLight)
+	t.Render()
 }
