@@ -1,4 +1,4 @@
-module github.com/vaclav-dvorak/go-dva-stat
+module github.com/vaclav-dvorak/go-dca-stat
 
 go 1.19
 

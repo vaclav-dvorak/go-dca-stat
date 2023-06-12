@@ -11,33 +11,32 @@ import (
 
 const (
 	cur     = "czk"
-	daysNum = 1820 //? 5*52*7 = 5 years
-	// daysNum = 1092 //? 3*52*7 = 3 years
-	// daysNum           = 364 //? 1*52*7 = 1 years
+	yearNum = 5
 )
 
 func main() {
 	dow := []string{0: "Nedele", 1: "Pondeli", 2: "Utery", 3: "Streda", 4: "Ctvrtek", 5: "Patek", 6: "Sobota"}
 	printWelcome()
-	dcaData, err := getPriceData(cur, daysNum)
-	if err != nil {
-		log.Fatalf("+%v", err)
+	years := make([]dcaStat, yearNum)
+	for year := 0; year < yearNum; year++ {
+		log.Infof("Fetching year (%d/%d)...\n", year+1, yearNum)
+		dcaData, err := getPriceData(cur, (year+1)*364) //? 364 = 1*52*7 = 1 year
+		if err != nil {
+			log.Fatalf("+%v", err)
+		}
+		years[year] = dcaData
 	}
-
-	dcaWeekS := make([]stat, len(dcaData.week))
-	for k := range dcaData.week {
-		dcaWeekS[k] = dcaData.week[k]
-	}
+	dcaWeekS := years[yearNum-1].week
 	sort.Slice(dcaWeekS, func(i, j int) bool {
 		return dcaWeekS[i].score > dcaWeekS[j].score
 	})
 
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"day", "price", "count", "score"})
+	t.AppendHeader(table.Row{"day", "price", "count", "score (5y)", "score (3y)", "score (1y)"})
 	for _, v := range dcaWeekS {
 		t.AppendRow(table.Row{
-			dow[v.date], fmt.Sprintf("%0.0f %s", v.avg, cur), v.count, fmt.Sprintf("%0.3f", v.score*100),
+			dow[v.date], fmt.Sprintf("%0.0f %s", v.avg, cur), v.count, fmt.Sprintf("%0.3f", v.score*100), fmt.Sprintf("%0.3f", years[2].week[v.date].score*100), fmt.Sprintf("%0.3f", years[0].week[v.date].score*100),
 		})
 	}
 	t.SetStyle(table.StyleLight)

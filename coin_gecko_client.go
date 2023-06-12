@@ -27,16 +27,16 @@ type stat struct {
 	score float64
 }
 type dcaStat struct {
-	week  map[int]stat
-	month map[int]stat
+	week  []stat
+	month []stat
 }
 
 func getPriceData(cur string, days int) (ret dcaStat, err error) {
 	var (
 		data priceResponse
 	)
-	ret.week = make(map[int]stat, 0)
-	ret.month = make(map[int]stat, 0)
+	ret.week = make([]stat, 0)
+	ret.month = make([]stat, 0)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*timeoutSec))
 	defer cancel()
@@ -65,21 +65,22 @@ func getPriceData(cur string, days int) (ret dcaStat, err error) {
 		return
 	}
 
-	week := make(map[int]stat, 0)
+	week := make([]stat, 7)
 	for i := 0; i < len(data.Prices)-1; i++ {
 		d := data.Prices[i]
 		tm := time.UnixMilli(int64(d[0]))
 		dow := int(tm.Weekday()) //? zero == sunday
-		if _, ok := week[dow]; !ok {
-			week[dow] = stat{date: dow}
-		}
-		if entry, ok := week[dow]; ok {
-			entry.sum += d[1]
-			entry.count++
-			entry.score += buyAmount / d[1]
-			entry.avg = entry.sum / float64(entry.count)
-			week[dow] = entry
-		}
+		// if week[dow]==nil {
+		// 	week[dow] = stat{date: dow}
+		// }
+		// if entry, ok := week[dow]; ok {
+		week[dow].date = dow
+		week[dow].sum += d[1]
+		week[dow].count++
+		week[dow].score += buyAmount / d[1]
+		week[dow].avg = week[dow].sum / float64(week[dow].count)
+		// 	week[dow] = entry
+		// }
 	}
 
 	ret.week = week
