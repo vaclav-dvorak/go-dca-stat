@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/jedib0t/go-pretty/v6 v6.4.6
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.3
 )
 
 require (
