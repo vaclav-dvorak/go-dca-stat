@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	cur     = "czk"
-	yearNum = 5
+	cur        = "czk"
+	yearNum    = 5
+	beautifier = 1000
 )
 
 func main() {
@@ -37,7 +38,7 @@ func main() {
 	t.AppendHeader(table.Row{"day", "price", "count", "score (5y)", "score (3y)", "score (1y)"})
 	for _, v := range dcaWeekS {
 		t.AppendRow(table.Row{
-			dow[v.date], fmt.Sprintf("%0.0f %s", v.avg, cur), v.count, fmt.Sprintf("%0.3f", years[4].week[v.date].score*100), fmt.Sprintf("%0.3f", years[2].week[v.date].score*100), fmt.Sprintf("%0.3f", years[0].week[v.date].score*100),
+			dow[v.date], fmt.Sprintf("%0.0f %s", v.avg, cur), v.count, fmt.Sprintf("%0.3f", years[4].week[v.date].score*beautifier), fmt.Sprintf("%0.3f", years[2].week[v.date].score*beautifier), fmt.Sprintf("%0.3f", years[0].week[v.date].score*beautifier),
 		})
 	}
 	t.SetStyle(table.StyleLight)
